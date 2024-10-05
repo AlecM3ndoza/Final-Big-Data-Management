@@ -2,3 +2,107 @@
 Final 
 import pandas as pd
 url = "file:///C:/Users/Alecb/AppData/Local/Temp/a46eab48-6d11-4422-8afb-7ad998ce32e1_adult.zip.2e1/adult.data"
+columns = ['age','workclass','education','education-num','marital-status','occupation','relationship','race','sex','capital-gain','capital-loss', 'hours-per-week','native-country','income']
+data = pd.read_csv(url, names=columns, na_values=' ?', sep=",\s", engine='python')
+data.head()
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Data summary
+print(data.info())
+
+# Distribution of income classes
+sns.countplot(data['income'])
+plt.title('Distribution of Income')
+plt.show()
+
+
+# Pairplot of some features
+sns.pairplot(data[['age', 'hours-per-week', 'education-num', 'income']], hue='income')
+plt.show()
+
+# Distribution of age vs income
+sns.boxplot(x='income', y='age', data=data)
+plt.title('Income by Age')
+plt.show()
+
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+
+# Handle missing values (simple method: drop rows with missing values)
+data.dropna(inplace=True)
+
+# Encode categorical features and the target variable
+categorical_columns = ['workclass', 'education', 'marital-status', 'occupation', 
+                       'relationship', 'race', 'sex', 'native-country']
+data = pd.get_dummies(data, columns=categorical_columns)
+label_encoder = LabelEncoder()
+data['income'] = label_encoder.fit_transform(data['income'])
+
+# Split data into features and target
+X = data.drop('income', axis=1)
+y = data['income']
+
+# Split into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Standardize numerical features
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+
+# Train Logistic Regression model
+logreg = LogisticRegression(random_state=42)
+logreg.fit(X_train, y_train)
+
+# Predictions and Evaluation
+y_pred = logreg.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+
+
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+
+# Dimensionality reduction using PCA for clustering visualization
+pca = PCA(n_components=2)
+X_train_pca = pca.fit_transform(X_train)
+
+# KMeans Clustering
+kmeans = KMeans(n_clusters=2, random_state=42)
+kmeans.fit(X_train_pca)
+
+# Plot the clusters
+plt.scatter(X_train_pca[:, 0], X_train_pca[:, 1], c=kmeans.labels_, cmap='viridis')
+plt.title('KMeans Clustering')
+plt.show()
+
+
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import confusion_matrix
+
+# Hyperparameter tuning using GridSearchCV
+param_grid = {'C': [0.1, 1, 10], 'solver': ['liblinear']}
+grid = GridSearchCV(LogisticRegression(random_state=42), param_grid, cv=5, scoring='accuracy')
+grid.fit(X_train, y_train)
+
+# Best model
+best_model = grid.best_estimator_
+y_pred_best = best_model.predict(X_test)
+
+# Evaluate tuned model
+print("Best Model Accuracy:", accuracy_score(y_test, y_pred_best))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_best))
+
+
+# Feature Importance from Logistic Regression
+coefficients = pd.Series(best_model.coef_[0], index=X.columns)
+coefficients.sort_values().plot(kind='barh', figsize=(10, 8))
+plt.title('Feature Importance from Logistic Regression')
+plt.show()
