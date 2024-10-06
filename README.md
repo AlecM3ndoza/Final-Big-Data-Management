@@ -1,5 +1,15 @@
 # Final-Big-Data
 Final 
+import pandas as pd
+
+# Read the CSV file
+df = pd.read_csv('Final Big Data.csv')
+
+# Display the first few rows of the dataset
+print(df.head())
+
+
+
 from ucimlrepo import fetch_ucirepo 
   
 # fetch dataset 
