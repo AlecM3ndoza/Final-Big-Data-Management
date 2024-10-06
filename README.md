@@ -1,10 +1,20 @@
 # Final-Big-Data
 Final 
-import pandas as pd
-url = "file:///C:/Users/Alecb/AppData/Local/Temp/a46eab48-6d11-4422-8afb-7ad998ce32e1_adult.zip.2e1/adult.data"
-columns = ['age','workclass','education','education-num','marital-status','occupation','relationship','race','sex','capital-gain','capital-loss', 'hours-per-week','native-country','income']
-data = pd.read_csv(url, names=columns, na_values=' ?', sep=",\s", engine='python')
-data.head()
+from ucimlrepo import fetch_ucirepo 
+  
+# fetch dataset 
+adult = fetch_ucirepo(id=2) 
+  
+# data (as pandas dataframes) 
+X = adult.data.features 
+y = adult.data.targets 
+  
+# metadata 
+print(adult.metadata) 
+  
+# variable information 
+print(adult.variables) 
+
 
 import seaborn as sns
 import matplotlib.pyplot as plt
