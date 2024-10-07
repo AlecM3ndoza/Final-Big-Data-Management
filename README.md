@@ -25,6 +25,14 @@ print(adult.metadata)
 # variable information 
 print(adult.variables) 
 
+import pandas as pd
+
+# Load the dataset from the uploaded Excel file
+file_path = '/mnt/data/Final Big Data.xlsx'
+data = pd.read_excel(file_path)
+
+# Checking for missing values in the dataset
+missing_data = data.isnull().sum
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -36,6 +44,7 @@ print(data.info())
 sns.countplot(data['income'])
 plt.title('Distribution of Income')
 plt.show()
+
 
 
 # Pairplot of some features
